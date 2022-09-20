@@ -1,0 +1,29 @@
+def delete(self,data):
+     if self.key is None:
+       print("Tree is empty!")
+       return
+     if data < self.key :
+       if self.lchild:
+           self.lchild = self.lchild.delete(data)
+       else:
+           print("Given Node is Not prsesnt in the tree")
+     elif data > self.key :
+       if self.rchild:
+           self.rchild = self.rchild.delete(data)
+       else:
+           print("Given Node is Not present in the tree")
+     else:
+       if self.lchild is None :
+           temp = self.rchild
+           self = None
+           return temp
+       if self.rchild is None:
+           temp = self.lchild
+           self = None
+           return temp
+       node = self.rchild
+       while node.lchild:
+           node = node.lchild
+       self.key = node.key
+       self.rchild = self.rchild.delete(node.key)
+     return self

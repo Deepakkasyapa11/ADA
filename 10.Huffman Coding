@@ -1,0 +1,163 @@
+from collections import Counter
+
+
+# every node object will have two children, otherwise is a leave
+class Node(object):
+    def __init__(self, left=None, right=None):
+        self.left = left
+        self.right = right
+
+    def getChild(self):
+        return self.left, self.right
+
+
+def get_code(node, code=''):
+    if type(node) is str:
+        # stop!!!
+        return {node: code}
+
+    # get the children
+    left, right = node.getChild()
+
+    # recursive function
+    huffman_code = dict()
+    huffman_code.update(get_code(left, code + '0'))
+    huffman_code.update(get_code(right, code + '1'))
+
+    return huffman_code
+
+
+def decode():
+        print("Encode message-", message_encoded)
+        print("Huffman code- ", huffman_code)
+
+        temp_list = []
+        message = []
+
+       #assigning the pointer list
+        pointer_list = list(huffman_code.keys())
+
+        #Giving the tag list
+        tag_list = list(huffman_code.values())
+
+
+        for j in range(len(message_encoded)):
+            temp_list.append(message_encoded[j])
+            dict = "".join([str(item) for item in temp_list])
+            for f in range(len(tag_list)):
+                if (dict == tag_list[f]):
+                    index = tag_list.index(res2)
+                    char = pointer_list[index]
+                    message.append(char)
+                    temp_list = []
+
+        Real_message = "".join([str(item) for item in message])
+        print("Real message:", Real_message)
+
+        return Real_message
+
+
+
+def FinalCostcalculate(msg, huffman_code):
+
+        # Calculation
+        #For  0 message bits
+
+
+        freqCount = {}
+        for char in message:
+            if char in freqCount:
+                freqCount[char] += 1
+            else:
+                freqCount[char] = 1
+            #from Ascii code 8bit ref
+            MsgBits = 0
+
+            #def reference for table bits
+
+           TableBits = 0
+        for key in huffman_code.keys():
+                TableBits += 8 + len(huffman_code[key])
+        for key in huffman_code.keys():
+            MsgBits += freqCount[key] * len(huffman_code[key])
+
+        return  TableBits + MsgBits
+
+
+def make_the_tree(freqs_sorted):
+    # as long as freqs_sorted.length > 1
+    while len(freqs_sorted) > 1:
+        # combine the two smallest one
+        key1, value1 = freqs_sorted[0]
+        key2, value2 = freqs_sorted[1]
+
+        # delete them
+        freqs_sorted = freqs_sorted[2:]
+
+        # add the new combination to freqs_sorted
+        new_value = value1 + value2
+        new_node = Node(key1, key2)
+
+        # add to freqs_sorted
+        freqs_sorted.append((new_node, new_value))
+
+        # sort again!!
+        freqs_sorted = sorted(freqs_sorted, key=lambda item: item[1])
+
+    return freqs_sorted[0][0]
+    # return root node (so we can use this generating coding....)
+
+
+# input
+message = 'AAABBBBBBEEEDABEEDCC'
+
+# count the letters
+# use Counter, then convert to dictionary
+freqs = dict(Counter(message))  # {'A': 4, 'B': 7, 'E': 5, 'D': 2, 'C': 2}
+# print(freqs['A'])  #4
+
+# sort them from smallest to biggest
+# {'C': 2, 'D': 2, 'A': 4, 'E': 5, 'A': 7}
+freqs_sorted = sorted(freqs.items(), key=lambda item: item[1])
+
+# make the tree by combining the smallest one, and delete those guys
+root = make_the_tree(freqs_sorted)
+
+# get the code
+huffman_code = get_code(root)
+
+# print the code
+print(huffman_code)
+# {'A': '01'; 'B': '11'; 'C': '000'; 'D': '001'; 'E': '10'}
+#Real message encoding
+
+message_code = []
+for i in range(len(message)):
+    message_code.append(huffman_code[message[i]])
+    message_encoded = "".join([str(item) for item in message_code])
+
+# task1: decode the encoded message to the original message
+Real_message = decode()
+
+
+# task2: calculate the total cost --> message + table
+print("Final Huffman Cost:", FinalCostcalculate(message, huffman_code))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#   {'A': '00', 'D': '010', 'C': '011', 'E': '10', 'B': '11'}
+#   Encode message- 00000011111111111110101001000111010010011011
+#   Huffman code-  {'A': '00', 'D': '010', 'C': '011', 'E': '10', 'B': '11'}
+#   Real message: AAABBBBBBEEEDABEEDCC
+#   Final Huffman Cost: 96
